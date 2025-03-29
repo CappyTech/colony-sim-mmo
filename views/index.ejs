@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+</head>
+<body>
+  <h1>Welcome to the <%= title %></h1>
+  <button id="gather-btn">Gather Resource</button>
+  <div id="log"></div>
+
+  <!-- Include Socket.IO client library -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Connect to the server
+    const socket = io();
+
+    // Get references to DOM elements
+    const gatherBtn = document.getElementById('gather-btn');
+    const logDiv = document.getElementById('log');
+
+    // On button click, emit a "gatherResource" event
+    gatherBtn.addEventListener('click', () => {
+      socket.emit('gatherResource', { resource: 'wood' });
+    });
+
+    // Listen for the "resourceUpdate" event from the server
+    socket.on('resourceUpdate', (data) => {
+      const message = `Received ${data.amount} unit of ${data.resource}.`;
+      console.log(message);
+      const p = document.createElement('p');
+      p.textContent = message;
+      logDiv.appendChild(p);
+    });
+  </script>
+</body>
+</html>
