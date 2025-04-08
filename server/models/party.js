@@ -13,7 +13,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('active', 'completed', 'failed'),
         defaultValue: 'active'
       }
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Party.associate = models => {
       // Many-to-many: A Party is composed of many Subjects.
