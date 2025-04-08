@@ -13,14 +13,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         defaultValue: 0
       }
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Player.associate = models => {
       // Each Player belongs to a User (account)
       Player.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
       
       // A Player controls many subjects.
-      Player.hasMany(models.subject, { foreignKey: 'playerId', as: 'subjects' });
+      Player.hasMany(models.Subject, { foreignKey: 'playerId', as: 'subjects' });
     };
   
     return Player;
