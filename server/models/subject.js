@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         defaultValue: {}
       }
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Subject.associate = models => {
       // A Subject belongs to a User
