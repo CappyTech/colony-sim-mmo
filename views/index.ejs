@@ -1,37 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title><%= title %></title>
+  <meta charset="UTF-8">
+  <title>Colony Sim MMO - Welcome</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; }
+    .container { width: 80%; margin: 0 auto; max-width: 800px; }
+    header { text-align: center; margin: 2rem 0; }
+    form { background: #fff; padding: 1.5rem; margin-bottom: 2rem; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    form h2 { margin-top: 0; }
+    label { display: block; margin-top: 1rem; }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] { width: 100%; padding: 0.5rem; margin-top: 0.5rem; }
+    input[type="submit"] { margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: #007bff; border: none; color: #fff; cursor: pointer; border-radius: 3px; }
+    input[type="submit"]:hover { background: #0056b3; }
+    .stats { background: #fff; padding: 1rem; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-top: 2rem; }
+    .stats h2 { margin-top: 0; }
+    .stats div { margin-bottom: 0.5rem; }
+  </style>
 </head>
 <body>
-  <h1>Welcome to the <%= title %></h1>
-  <button id="gather-btn">Gather Resource</button>
-  <div id="log"></div>
+  <div class="container">
+    <header>
+      <h1>Welcome to Colony Sim MMO</h1>
+      <p>Build, survive, and conquer a dynamic, evolving world!</p>
+    </header>
 
-  <!-- Include Socket.IO client library -->
-  <script src="/socket.io/socket.io.js"></script>
+    <!-- Login Form -->
+    <form action="/login" method="POST">
+      <h2>Log In</h2>
+      <label for="login-email">Email:</label>
+      <input type="email" id="login-email" name="email" required>
+      
+      <label for="login-password">Password:</label>
+      <input type="password" id="login-password" name="password" required>
+      
+      <input type="submit" value="Log In">
+    </form>
+
+    <!-- Sign Up Form -->
+    <form action="/signup" method="POST">
+      <h2>Sign Up</h2>
+      <label for="signup-username">Username:</label>
+      <input type="text" id="signup-username" name="username" required>
+      
+      <label for="signup-email">Email:</label>
+      <input type="email" id="signup-email" name="email" required>
+      
+      <label for="signup-password">Password:</label>
+      <input type="password" id="signup-password" name="password" required>
+      
+      <input type="submit" value="Sign Up">
+    </form>
+
+    <!-- Statistics Section -->
+    <div class="stats">
+      <h2>Game Statistics</h2>
+      <div>No. of Users: <span id="userCount">Loading...</span></div>
+      <div>No. of Players: <span id="playerCount">Loading...</span></div>
+      <div>No. of Subjects: <span id="subjectCount">Loading...</span></div>
+      <div>No. of Settlements: <span id="settlementCount">Loading...</span></div>
+      <div>No. of Factions: <span id="factionCount">Loading...</span></div>
+      <div>No. of Parties: <span id="partyCount">Loading...</span></div>
+      <div>Active Players: <span id="activePlayerCount">Loading...</span></div>
+    </div>
+  </div>
+
   <script>
-    // Connect to the server
-    const socket = io();
-
-    // Get references to DOM elements
-    const gatherBtn = document.getElementById('gather-btn');
-    const logDiv = document.getElementById('log');
-
-    // On button click, emit a "gatherResource" event
-    gatherBtn.addEventListener('click', () => {
-      socket.emit('gatherResource', { resource: 'wood' });
-    });
-
-    // Listen for the "resourceUpdate" event from the server
-    socket.on('resourceUpdate', (data) => {
-      const message = `Received ${data.amount} unit of ${data.resource}.`;
-      console.log(message);
-      const p = document.createElement('p');
-      p.textContent = message;
-      logDiv.appendChild(p);
-    });
+    // Fetch the game statistics from the API endpoint and update the stats section
+    fetch('/api/v1/stats')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('userCount').textContent = data.users;
+        document.getElementById('playerCount').textContent = data.players;
+        document.getElementById('subjectCount').textContent = data.subjects;
+        document.getElementById('settlementCount').textContent = data.settlements;
+        document.getElementById('factionCount').textContent = data.factions;
+        document.getElementById('partyCount').textContent = data.parties;
+        document.getElementById('activePlayerCount').textContent = data.activePlayers;
+      })
+      .catch(error => console.error('Error fetching stats:', error));
   </script>
 </body>
 </html>
