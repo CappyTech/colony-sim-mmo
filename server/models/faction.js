@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: DataTypes.TEXT,
       // Additional fields like reputation or territory can be added here
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Faction.associate = models => {
       // A Faction has many Subjects as members.
