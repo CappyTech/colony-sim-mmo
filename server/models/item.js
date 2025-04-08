@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       description: DataTypes.TEXT
       // Additional fields like rarity, value, etc. can be added here.
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Item.associate = models => {
       // An Item can appear in many Inventory records
