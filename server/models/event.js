@@ -14,7 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         defaultValue: {}
       }
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Event.associate = models => {
       // An Event can be associated with a Subject, Settlement, or Faction.
