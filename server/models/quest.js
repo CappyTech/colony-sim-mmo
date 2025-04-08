@@ -14,7 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.JSON,
         defaultValue: {}
       }
-    }, {});
+    }, {
+      timestamps: true,  // Adds `createdAt` and `updatedAt`
+      paranoid: true     // Adds `deletedAt` for soft deletes
+    });
   
     Quest.associate = models => {
       // A Quest can be assigned to a Party or directly to a Subject.
