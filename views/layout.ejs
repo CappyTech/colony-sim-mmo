@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>
+    <%= typeof title !=='undefined' ? title : 'Colony Sim MMO - Welcome' %>
+  </title>
+  <link href="/resources/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/resources/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <link rel="manifest" href="/manifest/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Content -->
+    <section class="content bg-body">
+    <%- include('./partials/successAlert.ejs') %>
+    <%- include('./partials/errorAlert.ejs') %>
+    <%- body %>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto d-print-none bg-body">
+    <nav class="navbar navbar-expand d-flex justify-content-center align-items-center mt-5 p-4 text-center">
+      <div class="stack-on-small">
+        <div>
+          <a href="/"><img src="/images/HCS-Logo-v4-Icon32.png" alt="HCS Logo" height="32" width="32"></a>
+          <a class="hcs-green-text" href="https://www.heroncs.co.uk">Heron Constructive Solutions Ltd.</a><br>
+          Copyright &copy; <%= copyrightyearstart %> - <%= copyrightyear %> | All Rights Reserved.
+              <div>
+                VAT No: <a class="hcs-green-text"
+                  href="https://beta.companieshouse.gov.uk/company/09276951">252295994</a>
+                |
+                Company No: <a class="hcs-green-text"
+                  href="https://beta.companieshouse.gov.uk/company/09276951">09276951</a>
+              </div>
+          <small>v<%= package %> | <%= lastfetched ? slimDateTime(lastfetched.lastFetchedAt,true) : 'Never' %> | <span id="pageLoadTime"></span></small>
+        </div>
+      </div>
+    </nav>
+    </footer>
+
+    <div id="cookieConsent" style="display: none;">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <p class="mb-0">
+          This site uses cookies to improve your experience. By using our site, you agree to our
+          <a href="/privacy-policy" target="_blank">Privacy Policy</a>.
+        </p>
+      </div>
+      <button id="acceptCookies" class="btn btn-hcs-green btn-sm">Accept</button>
+    </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const cookieBanner = document.getElementById('cookieConsent');
+        const acceptButton = document.getElementById('acceptCookies');
+
+        // Show the banner if cookie not accepted
+        if (!document.cookie.includes('cookieAccepted=true')) {
+            cookieBanner.style.display = 'block';
+        }
+
+        // Accept Cookies Event
+        acceptButton.addEventListener('click', function () {
+            cookieBanner.style.display = 'none';
+            document.cookie = "cookieAccepted=true; path=/; max-age=31536000"; // 1 year
+        });
+        });
+    </script>
+    <script defer src="/resources/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script defer src="/resources/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script defer>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    </script>
+    <script defer>
+        (() => {
+        'use strict';
+        const getStoredTheme = () => localStorage.getItem('theme');
+        const setStoredTheme = theme => localStorage.setItem('theme', theme);
+        const getPreferredTheme = () => {
+            const storedTheme = getStoredTheme();
+            if (storedTheme) {
+            return storedTheme;
+            }
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        };
+        const setTheme = theme => {
+            if (theme === 'auto') {
+            document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            } else {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            }
+        };
+        setTheme(getPreferredTheme());
+        const showActiveTheme = (theme, focus = false) => {
+            const themeSwitcher = document.querySelector('#darkModeToggleLabel');
+            if (!themeSwitcher) {
+            return;
+            }
+            if (focus) {
+            themeSwitcher.focus();
+            }
+        };
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            const storedTheme = getStoredTheme();
+            if (storedTheme !== 'light' && storedTheme !== 'dark') {
+            setTheme(getPreferredTheme());
+            }
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+            showActiveTheme(getPreferredTheme());
+            document.getElementById('darkModeToggle').addEventListener('change', () => {
+            toggleDarkMode();
+            });
+        });
+        const toggleDarkMode = () => {
+            const currentTheme = getStoredTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setStoredTheme(newTheme);
+            setTheme(newTheme);
+            showActiveTheme(newTheme, true);
+        };
+        })();
+    </script>
+    <script defer>
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/js/service-worker.js')
+            .then(registration => {
+                //console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            }, error => {
+                console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+        }
+    </script>
+</body>
+</html>
