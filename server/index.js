@@ -7,15 +7,33 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-// Set up middleware to parse form data
+const useragent = require('express-useragent');
+const fs = require('fs');
+const expressLayouts = require('express-ejs-layouts');
+const flash = require('express-flash');
+require('dotenv').config();
+const logger = require('./services/loggerService');
+const packageJson = require('../package.json');
+app.set('trust proxy', true);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '../views'));
+app.set('layout', 'layout');
+app.use(expressLayouts);
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve static files (if any)
 app.use(express.static(path.join(__dirname, '../client')));
 
-// Set up EJS as the view engine (assumes views folder exists)
-app.set('views', path.join(__dirname, '../views'));
-app.set('view engine', 'ejs');
+const vendorPackages = ['bootstrap', 'bootstrap-icons', '@popperjs/core'];
+vendorPackages.forEach(pkg => {
+    app.use(`/resources/${pkg}`, express.static(path.join(__dirname, `node_modules/${pkg}`)));
+});
+
+app.use(useragent.express());
+
+app.use(require('./services/securityService'));
+app.use(require('./services/sessionService'));
+app.use(flash());
+app.use(require('./services/rateLimiterService'));
 
 // Import and mount the auth routes
 const authRoutes = require('./routes/auth');
@@ -47,8 +65,37 @@ io.on('connection', (socket) => {
   });
 });
 
-// Sync database and start the server
-const PORT = 80;
-db.sequelize.sync().then(() => {
-  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.use((req, res, next) => {
+  res.locals.successMessage = req.flash('success');
+  res.locals.errorMessage = req.flash('error');
+  next();
 });
+
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+app.use((req, res, next) => {
+  const error = new Error(`Route not found: ${req.method} ${req.originalUrl}`);
+  error.statusCode = 404;
+  next(error);
+});
+
+// Register the error handler
+app.use(require('./services/errorHandlerService'));
+
+if (process.env.NODE_ENV === 'development') {
+  app.listen(80, '127.0.0.1', () => {
+      logger.info(`Server is running development`);
+  });
+} else {
+  app.listen(443, '0.0.0.0', () => {
+      logger.info(`Server is running production`);
+  });
+}
+
+module.exports = app;
